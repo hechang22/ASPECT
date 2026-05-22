@@ -1,15 +1,10 @@
-# MOA-C2S: Mechanism of Action - Cell to Sentence Framework
+#ASPECT：A generalizable language model framework bridging cross-context transcriptomes for cancer therapy prediction
 
-This repository contains the code for the manuscript "Mechanism-Aware Drug Sensitivity Prediction Using Cell-to-Sentence Embeddings".
+This repository contains the code for the manuscript "A generalizable language model framework bridging cross-context transcriptomes for cancer therapy prediction
 
 ## Overview
+Predicting patient-specific drug response is vital for advancing precision oncology, as it enables the pre-emptive identification of effective therapeutic interventions while bypassing the practical constraints of clinical testing. However, although large-scale screens in cancer cell lines serve as the primary foundation for sensitivity modeling, the systematic divergence between cell line and tumor transcriptomes from real patients remains a major barrier to reliable cross-domain translation, limiting the fidelity of prediction transfer. Analogous to how words derive meaning from sentential context, genes acquire functional meaning within their transcriptomic context, allowing transcriptomes to be interpreted as a semantic language. We therefore propose ASPECT (Anchoring Semantic Phenotypes for Effective Cancer Treatment), a framework that leverages Large Language Models to align cross-context transcriptomes between patient tumors and cell lines. By characterizing semantic phenotypes including metabolic activity, proliferation, and malignancy, ASPECT matches patient samples to reference cell lines and reconstructs a drug benefit score quantifying therapeutic sensitivity. Specifically, we integrated transcriptomic profiles from 1,019 cell lines with drug sensitivity screening data across 286 drugs to interpret 14,197 multi-source patient samples, spanning a comprehensive spectrum of adult and pediatric malignancies across more than 80 cancer types. We demonstrated the model’s efficacy in chemotherapy sensitivity prediction, patient stratification and prognosis assessment, with an average AUC improvement of 0.35 over existing baselines. Furthermore, by analyzing 78 single-cell RNA (scRNA)-seq samples from 22 triple-negative breast cancer patients, we decoded extrinsic immune microenvironment dynamics. Our framework identifies patients with hot-but-suppressed microenvironments as ideal candidates for chemo-immunotherapy, providing a novel, interpretable strategy to guide precision oncology.
 
-MOA-C2S is a framework for predicting drug sensitivity in cancer patients using transcriptomic data and mechanism-aware gene selection. The framework combines:
-
-1. **Mechanism-based gene selection**: Uses drug mechanism of action (MOA) information to select relevant genes
-2. **Cell-to-sentence conversion**: Converts gene expression profiles into text prompts
-3. **Embedding generation**: Uses the C2S-Scale language model to generate embeddings
-4. **Sensitivity prediction**: Applies regression models (k-NN, GPR, LightGBM) to predict drug sensitivity
 
 ## Repository Structure
 
@@ -53,11 +48,13 @@ Core dependencies (see `requirements.txt` for complete list):
 
 ### R Packages
 
-- tidyverse
-- janitor
-- ggplot2
-- ggpubr
-- TCGAbiolinks (for subtype analysis)
+- tidyverse, janitor, ggplot2, ggpubr
+- TCGAbiolinks (TCGA subtype & clinical data)
+- survival, survminer (survival analysis)
+- forestmodel (Cox forest plots)
+- mlr3, mlr3learners, mlr3viz, ranger (ML classification)
+- psych (factor analysis)
+- patchwork (figure composition)
 
 ## Installation
 
@@ -155,31 +152,29 @@ python scripts/5_validate_predictions.py \
 
 ### Step 6: Downstream Analysis
 
-Run R analysis pipeline:
+Run the R analysis pipeline (15 sections covering model comparison, lineage analysis, tumor purity, molecular subtypes, survival analysis, CBI scoring, drug combination analysis, and more):
 
 ```r
 source("scripts/6_analysis_pipeline.R")
-
-# Model comparison
-compare_models(
-  file_list = list(
-    "Model_A" = "./validation_results/model_a/validation_summary.csv",
-    "Model_B" = "./validation_results/model_b/validation_summary.csv"
-  ),
-  output_dir = "./figures"
-)
-
-# Complete analysis for a drug
-results <- run_complete_analysis(list(
-  drug_name = "Vinblastine",
-  output_dir = "./figures/vinblastine"
-))
-
-# Individual analyses
-analyze_neighbor_lineage(drug_name = "Vinblastine")
-analyze_tumor_purity(drug_name = "Vinblastine")
-analyze_molecular_subtypes(drug_name = "Vinblastine", cancer_type = "BRCA")
+# Edit file_list paths at top of script before running
 ```
+
+The analysis script is organized into 15 sections:
+1. **Model Comparison**: AUC & Recall bar charts across models
+2. **Neighbor Lineage & Metastasis**: Chi-square test, lineage enrichment
+3. **Cross-Cancer Lineage**: Bubble plot enrichment analysis
+4. **Tumor Purity**: ESTIMATE purity vs predicted sensitivity
+5. **Molecular Subtype Validation**: BRCA, OV, SKCM, PRAD subtypes
+6. **CBI Subtype Validation**: Cytotoxic Burden Index across cancers
+7. **Immune/Purity by BRCA Subtype**: ESTIMATE validation in breast cancer
+8. **CCLE Primary vs Metastatic IC50**: Cell line validation
+9. **ML Classification**: Random forest subtype prediction
+10. **Survival Analysis**: KM curves + Cox regression (LGG, BRCA, SKCM)
+11. **CBI Variants**: Mean/PCA/FA methods + survival evaluation
+12. **BRCA Subtype-Specific Survival**: Stratified survival per subtype
+13. **LGG Subtype & TOP2A Correlation**: Target engagement validation
+14. **Drug Combination Co-sensitivity**: Regimen pair correlation
+15. **Panel Figures**: Publication-ready combined figures
 
 ## Data Requirements
 
