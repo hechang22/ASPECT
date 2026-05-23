@@ -33,12 +33,16 @@ def load_clinical_indications(indications_file_path):
     print(f"--- Loading clinical indications from: {indications_file_path} ---")
     try:
         df = pd.read_csv(indications_file_path)
-        if df['DrugIndicationsStandardized'].dtype == 'object':
-             df['DrugIndicationsStandardized'] = df['DrugIndicationsStandardized'].apply(ast.literal_eval)
+        # Column from 0_prepare_indications.py output: Standardized_Indications, GDSC_DrugName
+        col_indications = 'Standardized_Indications'
+        col_drugname = 'GDSC_DrugName'
+        
+        if df[col_indications].dtype == 'object':
+             df[col_indications] = df[col_indications].apply(ast.literal_eval)
         
         indications_dict = pd.Series(
-            df['DrugIndicationsStandardized'].values,
-            index=df['DrugName']
+            df[col_indications].values,
+            index=df[col_drugname]
         ).to_dict()
         print(f"Successfully created dictionary for {len(indications_dict)} drugs.")
         return indications_dict
@@ -143,7 +147,8 @@ def main():
         ground_truth_list.append(current_truth)
         
         # Top-N Enrichment Analysis
-        drug_df_sorted = drug_df.sort_values('Predicted_IC50', ascending=True)
+        # NOTE: ascending=False picks samples with HIGHEST predicted IC50 (most sensitive)
+        drug_df_sorted = drug_df.sort_values('Predicted_IC50', ascending=False) 
         top_n_df = drug_df_sorted.head(args.top_n)
 
         M = len(drug_df)

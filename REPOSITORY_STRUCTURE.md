@@ -1,43 +1,35 @@
 # ASPECT Repository Structure
 
-## Summary of Changes
+## Summary
 
-This repository has been organized for manuscript submission. The key change is the **removal of CellHit dependency** - all required functionality has been integrated into the self-contained `ASPECT` package.
+This repository has been organized for manuscript submission. The key change is the **removal of CellHit dependency** — all required functionality has been integrated into the self-contained `ASPECT` package. The only remaining external dependency is `celligner` (script 1) / `celligner2` (bundled).
 
 ## Directory Structure
 
 ```
 workspace/
-├── ASPECT/                     # Self-contained Python package (NO CellHit dependency)
+├── ASPECT/                     # Self-contained Python package
 │   ├── __init__.py             # Package initialization with exports
-│   ├── dataset_loaders.py      # Data loading: obtain_metadata, DatasetLoader, IndexedArray
-│   ├── gen_gene_list.py        # Mechanism-based gene selection: GeneGetter
-│   └── celligner.py            # Celligner utilities
+│   ├── dataset_loaders.py      # obtain_metadata, DatasetLoader, IndexedArray
+│   ├── gen_gene_list.py        # GeneGetter (mechanism-based gene selection)
+│   └── celligner.py            # Simplified Celligner utilities
 │
-├── scripts/                    # Analysis pipeline (numbered in execution order)
+├── scripts/                    # Analysis pipeline (numbered by execution order)
 │   ├── 0_prepare_indications.py      # Standardize clinical indications
-│   ├── 1_prepare_celligner.py        # Celligner alignment
-│   ├── 2_gen_prompts.py              # Generate text prompts
-│   ├── 3_gen_embedding.py            # Generate C2S embeddings
-│   ├── 4_predict_sensitivity.py      # Predict drug sensitivity
-│   ├── 5_validate_predictions.py     # Validate with clinical indications
-│   └── 6_analysis_pipeline.R         # R downstream analysis
+│   ├── 1_prepare_celligner.py        # Celligner CCLE-TCGA alignment
+│   ├── 2_gen_prompts.py              # Prompt generation (ASPECT-2k / ASPECT-comb)
+│   ├── 3_gen_embedding.py            # C2S-Scale embedding generation
+│   ├── 4_predict_sensitivity.py      # Drug sensitivity prediction (k-NN/GPR/LGBM)
+│   ├── 5_validate_predictions.py     # Validation with clinical indications
+│   └── 6_analysis_pipeline.R         # R downstream analysis (15 sections)
 │
-├── celligner2/                 # External dependency (Broad Institute)
-│   └── ...                     # Published tool, kept as-is
-│
-├── README.md                   # Main documentation
-├── requirements.txt            # Python dependencies
-└── REPOSITORY_STRUCTURE.md     # This file
-
-## Original files (kept for reference, not used in pipeline):
-├── 1_prepare_celligner_script.py
-├── 1_prepare_standardize_indications.py
-├── 2_gen_prompts_v2.py
-├── 3_gen_embedding.py
-├── 4_correlation_study_v2.py
-├── 5_validate.py
-└── 6_analysis_pipeline.R (original)
+├── original_scripts/           # Original scripts (reference only)
+├── celligner2/                 # Celligner2 (external, Broad Institute)
+├── framework.png               # ASPECT framework diagram
+├── .gitignore
+├── README.md
+├── requirements.txt
+└── REPOSITORY_STRUCTURE.md
 ```
 
 ## Key Changes
@@ -46,17 +38,15 @@ workspace/
 
 **Before:** Scripts imported from `CellHit.data`
 ```python
-from CellHit.data import obtain_metadata  # OLD - external dependency
+from CellHit.data import obtain_metadata  # OLD
 ```
 
 **After:** Scripts import from `ASPECT`
 ```python
-from ASPECT.dataset_loaders import obtain_metadata  # NEW - self-contained
+from ASPECT.dataset_loaders import obtain_metadata  # NEW
 ```
 
-### 2. Integrated Functions into ASPECT
-
-The following functions from CellHit have been integrated:
+### 2. Integrated Functions
 
 | Function | Original Location | New Location |
 |----------|------------------|--------------|
@@ -67,98 +57,44 @@ The following functions from CellHit have been integrated:
 | `IndexedArray` | `CellHit.data.indexed_array` | `ASPECT.dataset_loaders` |
 | `DatasetLoader` | `CellHit.data.dataset_loaders` | `ASPECT.dataset_loaders` |
 
-### 3. Script Improvements
+### 3. Two Prompt Strategies
 
-All scripts have been updated with:
-- **Docstrings**: Comprehensive module and function documentation
-- **Type hints**: Where appropriate for clarity
-- **Argument parsing**: Better CLI with help messages
-- **Error handling**: Try-except blocks for file operations
-- **Path handling**: Using `pathlib.Path` for cross-platform compatibility
-- **Comments**: Chinese comments translated to English
+| Strategy | CCLE | TCGA |
+|----------|------|------|
+| `ASPECT-2k` | Top-2000 genes per cell line | Top-2000 per sample |
+| `ASPECT-comb` | Knowledge-based (LLM + ligand + target + KEGG) | Top-2000 per sample |
 
-### 4. R Script Modularization
+### 4. Dual Prediction Modes
 
-The original `6_analysis_pipeline.R` was a monolithic script. It has been refactored into:
-
-- `compare_models()`: Model comparison (AUC and Recall)
-- `analyze_neighbor_lineage()`: Neighbor lineage enrichment
-- `analyze_cross_cancer_lineage()`: Cross-cancer lineage analysis
-- `analyze_tumor_purity()`: Tumor purity correlation
-- `analyze_molecular_subtypes()`: Molecular subtype analysis
-- `run_complete_analysis()`: Run all analyses for a drug
+`4_predict_sensitivity.py` supports both CCLE prompt formats via `--ccle_strategy`:
+- `topn` — CCLE prompts lack DrugID; metadata matched by cell line
+- `knowledge` — CCLE prompts have DrugID/DrugName; direct merge
 
 ## Execution Order
 
-Scripts are numbered to indicate execution order:
-
-1. **0_prepare_indications.py**: Prepare clinical indication mapping
-2. **1_prepare_celligner.py**: Align transcriptomic data
-3. **2_gen_prompts.py**: Generate text prompts from expression
-4. **3_gen_embedding.py**: Generate embeddings using C2S-Scale
-5. **4_predict_sensitivity.py**: Predict drug sensitivity
-6. **5_validate_predictions.py**: Validate predictions
-7. **6_analysis_pipeline.R**: Downstream analysis and visualization
+```
+0_prepare_indications.py       → gdsc_clinical_indications.csv
+1_prepare_celligner.py         → celligner_CCLE_TCGA.feather
+2_gen_prompts.py               → ccle_top2000_prompts.csv / tcga_top2000_prompts.csv
+3_gen_embedding.py             → ccle_embeddings.npy / tcga_embeddings.npy
+4_predict_sensitivity.py       → predictions.csv
+5_validate_predictions.py      → validation_summary.csv
+6_analysis_pipeline.R          → figures & tables
+```
 
 ## Dependencies
 
-### Required (Python)
-- pandas, numpy, scipy
-- scikit-learn, lightgbm
-- torch, transformers, bitsandbytes
-- celligner2 (external)
+### Python
+- pandas, numpy, scipy, scikit-learn, lightgbm
+- torch, transformers, bitsandbytes (for step 3)
+- celligner (for step 1)
 
-### Required (R)
-- tidyverse, janitor, ggplot2, ggpubr
-- TCGAbiolinks (for subtype analysis)
-
-## Usage Example
-
-```bash
-# Step 0: Prepare indications
-python scripts/0_prepare_indications.py \
-    --nci_input ./data/metadata/nci_compiled_dataset.csv \
-    --gdsc_mapping ./data/metadata/gdsc_pubchem_mappings.csv \
-    --output_csv ./results/gdsc_clinical_indications.csv
-
-# Step 1: Celligner alignment
-python scripts/1_prepare_celligner.py \
-    --data_path ./data/transcriptomics \
-    --output_path ./data/transcriptomics
-
-# Step 2: Generate prompts
-python scripts/2_gen_prompts.py \
-    --dataset gdsc \
-    --data_path ./data \
-    --output_path ./results \
-    --top_n_genes 2000
-
-# Step 3: Generate embeddings
-python scripts/3_gen_embedding.py \
-    --model_path ./model/c2s-scale-gemma-2 \
-    --prompts_file ./results/gdsc_ccle_mechanism_prompts.csv \
-    --output_dir ./results/embeddings \
-    --smart_batching
-
-# Step 4: Predict sensitivity
-python scripts/4_predict_sensitivity.py \
-    --ccle_prompts ./results/gdsc_ccle_mechanism_prompts.csv \
-    --ccle_embeddings ./results/embeddings/ccle_embeddings.npy \
-    --tcga_prompts ./results/tcga_top2000_prompts.csv \
-    --tcga_embeddings ./results/embeddings/tcga_embeddings.npy \
-    --output_file ./results/predictions.csv
-
-# Step 5: Validate
-python scripts/5_validate_predictions.py \
-    --predictions_csv ./results/predictions.csv \
-    --output_dir ./validation_results
-
-# Step 6: R analysis
-R -e "source('scripts/6_analysis_pipeline.R'); run_complete_analysis(list(drug_name='Vinblastine'))"
-```
+### R
+- tidyverse, janitor, ggplot2, ggpubr, TCGAbiolinks
+- survival, survminer, forestmodel, mlr3, ranger, psych, patchwork
 
 ## Notes
 
 - The `CellHit/` directory is kept for reference but is **not used** by the pipeline
-- All scripts now use relative paths by default (configurable via arguments)
-- The `ASPECT` package is fully self-contained and can be imported independently
+- All scripts use relative paths by default (configurable via CLI arguments)
+- The `ASPECT` package is fully self-contained and independently importable

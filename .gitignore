@@ -14,6 +14,10 @@ results/
 out/
 runs/
 
+# Embeddings (large binary files)
+embeddings/
+*.npy
+
 # Model files (large, not in git)
 model/
 
@@ -43,10 +47,13 @@ env/
 .DS_Store
 Thumbs.db
 
-# Output directories
+# Validation outputs
 validation_results/
+validation_results_*/
+validation_per_drug_*/
+
+# Figures
 figures/
-embeddings/
 
 # Logs
 *.log
