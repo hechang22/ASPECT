@@ -25,7 +25,7 @@ Predicting patient-specific drug response is vital for advancing precision oncol
 
 ```
 .
-├── ASPECT/                          # Self-contained Python package
+├── utils/                          # Utility package
 │   ├── __init__.py                  #   Package initialization
 │   ├── dataset_loaders.py           #   Data loading, DatasetLoader, IndexedArray
 │   ├── gen_gene_list.py             #   Mechanism-based gene selection (GeneGetter)
@@ -214,7 +214,7 @@ source("scripts/6_analysis_pipeline.R")
 
 ## Notes on CellHit Dependency
 
-This repository has been refactored to remove dependencies on the external `CellHit` package. All required functionality is integrated into the `ASPECT` package:
+This repository has been refactored to remove dependencies on the external `CellHit` package. All required functionality is integrated into the `utils` package:
 
 - `obtain_metadata()` — Loads GDSC/PRISM drug sensitivity metadata
 - `GeneGetter` — Mechanism-aware gene selection from multiple knowledge sources

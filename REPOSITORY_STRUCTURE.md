@@ -2,30 +2,30 @@
 
 ## Summary
 
-This repository has been organized for manuscript submission. The key change is the **removal of CellHit dependency** — all required functionality has been integrated into the self-contained `ASPECT` package. The only remaining external dependency is `celligner` (script 1) / `celligner2` (bundled).
+This repository has been organized for manuscript submission. The key change is the **removal of CellHit dependency** — all required functionality has been integrated into the `utils` package. The only remaining external dependency is `celligner` (script 1) / `celligner2` (bundled).
 
 ## Directory Structure
 
 ```
 workspace/
-├── ASPECT/                     # Self-contained Python package
-│   ├── __init__.py             # Package initialization with exports
-│   ├── dataset_loaders.py      # obtain_metadata, DatasetLoader, IndexedArray
-│   ├── gen_gene_list.py        # GeneGetter (mechanism-based gene selection)
-│   └── celligner.py            # Simplified Celligner utilities
+├── utils/                       # Utility package
+│   ├── __init__.py              # Package initialization with exports
+│   ├── dataset_loaders.py       # obtain_metadata, DatasetLoader, IndexedArray
+│   ├── gen_gene_list.py         # GeneGetter (mechanism-based gene selection)
+│   └── celligner.py             # Simplified Celligner utilities
 │
-├── scripts/                    # Analysis pipeline (numbered by execution order)
-│   ├── 0_prepare_indications.py      # Standardize clinical indications
-│   ├── 1_prepare_celligner.py        # Celligner CCLE-TCGA alignment
-│   ├── 2_gen_prompts.py              # Prompt generation (ASPECT-2k / ASPECT-comb)
-│   ├── 3_gen_embedding.py            # C2S-Scale embedding generation
-│   ├── 4_predict_sensitivity.py      # Drug sensitivity prediction (k-NN/GPR/LGBM)
-│   ├── 5_validate_predictions.py     # Validation with clinical indications
-│   └── 6_analysis_pipeline.R         # R downstream analysis (15 sections)
+├── scripts/                     # Analysis pipeline (numbered by execution order)
+│   ├── 0_prepare_indications.py       # Standardize clinical indications
+│   ├── 1_prepare_celligner.py         # Celligner CCLE-TCGA alignment
+│   ├── 2_gen_prompts.py               # Prompt generation (ASPECT-2k / ASPECT-comb)
+│   ├── 3_gen_embedding.py             # C2S-Scale embedding generation
+│   ├── 4_predict_sensitivity.py       # Drug sensitivity prediction (k-NN/GPR/LGBM)
+│   ├── 5_validate_predictions.py      # Validation with clinical indications
+│   └── 6_analysis_pipeline.R          # R downstream analysis (15 sections)
 │
-├── original_scripts/           # Original scripts (reference only)
-├── celligner2/                 # Celligner2 (external, Broad Institute)
-├── framework.png               # ASPECT framework diagram
+├── original_scripts/            # Original scripts (reference only)
+├── celligner2/                  # Celligner2 (external, Broad Institute)
+├── framework.png                # ASPECT framework diagram
 ├── .gitignore
 ├── README.md
 ├── requirements.txt
@@ -41,21 +41,21 @@ workspace/
 from CellHit.data import obtain_metadata  # OLD
 ```
 
-**After:** Scripts import from `ASPECT`
+**After:** Scripts import from `utils`
 ```python
-from ASPECT.dataset_loaders import obtain_metadata  # NEW
+from utils.dataset_loaders import obtain_metadata  # NEW
 ```
 
 ### 2. Integrated Functions
 
 | Function | Original Location | New Location |
 |----------|------------------|--------------|
-| `obtain_metadata()` | `CellHit.data.metadata_processing` | `ASPECT.dataset_loaders` |
-| `obtain_gdsc()` | `CellHit.data.metadata_processing` | `ASPECT.dataset_loaders` |
-| `obtain_prism_lfc()` | `CellHit.data.metadata_processing` | `ASPECT.dataset_loaders` |
-| `GeneGetter` | `CellHit.data.metadata_processing` | `ASPECT.gen_gene_list` |
-| `IndexedArray` | `CellHit.data.indexed_array` | `ASPECT.dataset_loaders` |
-| `DatasetLoader` | `CellHit.data.dataset_loaders` | `ASPECT.dataset_loaders` |
+| `obtain_metadata()` | `CellHit.data.metadata_processing` | `utils.dataset_loaders` |
+| `obtain_gdsc()` | `CellHit.data.metadata_processing` | `utils.dataset_loaders` |
+| `obtain_prism_lfc()` | `CellHit.data.metadata_processing` | `utils.dataset_loaders` |
+| `GeneGetter` | `CellHit.data.metadata_processing` | `utils.gen_gene_list` |
+| `IndexedArray` | `CellHit.data.indexed_array` | `utils.dataset_loaders` |
+| `DatasetLoader` | `CellHit.data.dataset_loaders` | `utils.dataset_loaders` |
 
 ### 3. Two Prompt Strategies
 
@@ -97,4 +97,4 @@ from ASPECT.dataset_loaders import obtain_metadata  # NEW
 
 - The `CellHit/` directory is kept for reference but is **not used** by the pipeline
 - All scripts use relative paths by default (configurable via CLI arguments)
-- The `ASPECT` package is fully self-contained and independently importable
+- The `utils` package is fully self-contained and independently importable

@@ -23,7 +23,7 @@ class GeneGetter:
     - KEGG pathway genes
     - Important/downstream pathway genes
     
-    Supports both ASPECT's 'knowledge_data' folder structure and
+    Supports both utils's 'knowledge_data' folder structure and
     CellHit's 'MOA_data' folder structure.
     """
 
@@ -43,14 +43,14 @@ class GeneGetter:
         data_path = Path(data_path) if data_path else Path('.')
         
         # Support both folder naming conventions
-        # ASPECT uses 'knowledge_data'
+        # utils uses 'knowledge_data'
         # CellHit uses 'MOA_data'
         moa_data_path = kwargs.get('moa_data_path', None)
         if moa_data_path:
             # Backward compatibility with CellHit
             self.data_path = Path(moa_data_path)
         else:
-            # Try ASPECT naming first, then CellHit naming
+            # Try utils naming first, then CellHit naming
             knowledge_path = data_path / 'knowledge_data'
             moa_path = data_path / 'MOA_data'
             
@@ -59,7 +59,7 @@ class GeneGetter:
             elif moa_path.exists():
                 self.data_path = moa_path
             else:
-                # Default to knowledge_data (ASPECT convention)
+                # Default to knowledge_data (utils convention)
                 self.data_path = knowledge_path
 
         # Load common genes (for GDSC dataset)

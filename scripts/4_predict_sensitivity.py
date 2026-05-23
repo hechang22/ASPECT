@@ -31,8 +31,8 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 import lightgbm as lgb
 
-# Import from ASPECT (self-contained, no CellHit dependency)
-from ASPECT.dataset_loaders import obtain_metadata
+# Import from utils (self-contained, no CellHit dependency)
+from utils.dataset_loaders import obtain_metadata
 
 
 def load_data_topn(ccle_prompts_path, ccle_embeddings_path, 

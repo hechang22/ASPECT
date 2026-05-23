@@ -1,8 +1,8 @@
 """
-ASPECT: A Semantic Prediction Engine for Cancer Therapeutics
+ASPECT Utilities
 
-A framework for predicting drug sensitivity using transcriptomic data
-and mechanism-aware gene selection.
+Utility functions for the ASPECT framework: data loading, gene selection,
+and Celligner integration.
 """
 
 from .dataset_loaders import (

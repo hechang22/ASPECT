@@ -21,9 +21,9 @@ import json
 import sys
 from tqdm import tqdm
 
-# Import from ASPECT (self-contained, no CellHit dependency)
-from ASPECT.dataset_loaders import obtain_metadata
-from ASPECT.gen_gene_list import GeneGetter
+# Import from utils (self-contained, no CellHit dependency)
+from utils.dataset_loaders import obtain_metadata
+from utils.gen_gene_list import GeneGetter
 
 
 def load_expression_from_feather(feather_path):
