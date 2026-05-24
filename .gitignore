@@ -52,6 +52,9 @@ validation_results/
 validation_results_*/
 validation_per_drug_*/
 
+# Original scripts (reference only, not part of the released pipeline)
+original_scripts/
+
 # Figures
 figures/
 

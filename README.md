@@ -36,8 +36,9 @@ Predicting patient-specific drug response is vital for advancing precision oncol
 │   ├── 2_gen_prompts.py             #   Generate text prompts (ASPECT-2k / ASPECT-comb)
 │   ├── 3_gen_embedding.py           #   Generate C2S-Scale embeddings
 │   ├── 4_predict_sensitivity.py     #   Predict drug sensitivity (k-NN / GPR / LightGBM)
-│   ├── 5_validate_predictions.py    #   Validate with clinical indications
-│   └── 6_analysis_pipeline.R        #   Downstream R analysis (15 sections)
+│   ├── 5_validate_predictions.py     #   Validate with clinical indications
+│   ├── 6_analysis.R                  #   Downstream data processing (saves workspace)
+│   └── 6_figures.qmd                 #   Downstream figures (Quarto notebook)
 ├── celligner2/                      # Celligner2 package (external dependency)
 ├── framework.png                    # ASPECT framework diagram
 ├── requirements.txt                 # Python dependencies
@@ -178,14 +179,23 @@ python scripts/5_validate_predictions.py \
     --top_n 600
 ```
 
-### Step 6: Downstream Analysis (R)
+### Step 6: Downstream Analysis
 
-```r
-source("scripts/6_analysis_pipeline.R")
-# Edit file_list paths at top of script before running
+**Step 6a — Run data processing** (produces `results/analysis_workspace.RData`):
+
+```bash
+Rscript scripts/6_analysis.R
 ```
 
-15 analysis sections: Model Comparison → Neighbor Lineage → Cross-Cancer Enrichment → Tumor Purity → Subtype Validation → CBI Analysis → Immune/Purity → CCLE IC50 → ML Classification → Survival (KM+Cox) → CBI Variants → BRCA Subtype Survival → LGG TOP2A → Drug Combinations → Panel Figures.
+This script performs all computations across 14 analysis sections (model comparison, lineage enrichment, tumor purity, molecular subtypes, CBI scoring, survival analysis, drug combination analysis, machine learning classification, and more). All intermediate data is saved to a workspace file; no plots are generated.
+
+**Step 6b — Generate figures** (Quarto notebook):
+
+```bash
+quarto render scripts/6_figures.qmd
+```
+
+Or open `scripts/6_figures.qmd` in RStudio and run interactively. The notebook loads `results/analysis_workspace.RData` and contains 28 publication-ready figure blocks covering all downstream visualizations.
 
 ---
 
