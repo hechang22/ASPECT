@@ -20,8 +20,11 @@ workspace/
 │   ├── 2_gen_prompts.py               # Prompt generation (ASPECT-2k / ASPECT-comb)
 │   ├── 3_gen_embedding.py             # C2S-Scale embedding generation
 │   ├── 4_predict_sensitivity.py       # Drug sensitivity prediction (k-NN/GPR/LGBM)
-│   ├── 5_validate_predictions.py      # Validation with clinical indications
-│   └── 6_analysis_pipeline.R          # R downstream analysis (15 sections)
+│   └── 5_validate_predictions.py      # Validation with clinical indications
+│
+├── examples/                    # Usage examples
+│   ├── 6_analysis.R              # Downstream data processing (saves workspace)
+│   └── 6_figures.qmd             # Downstream figures (Quarto notebook)
 │
 ├── original_scripts/            # Original scripts (reference only)
 ├── celligner2/                  # Celligner2 (external, Broad Institute)

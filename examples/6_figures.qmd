@@ -50,7 +50,7 @@ auc_plot <- ggplot(plot_data_sorted_auc, aes(x = drug_name, y = auc, fill = mode
 
 ```{r}
 print(auc_plot)
-ggsave('/Users/hechang/Documents/chenlab/fig/auc_plot_reversed.png',auc_plot)
+ggsave('./figures/auc_plot_reversed.png',auc_plot)
 ```
 
 ### Recall Plot
@@ -73,7 +73,7 @@ recall_plot <- ggplot(plot_data_sorted_recall, aes(x = drug_name, y =recall_top_
 
 ```{r}
 print(recall_plot)
-ggsave('/Users/hechang/Documents/chenlab/fig/recall_plot_reversed.png',recall_plot)
+ggsave('./figures/recall_plot_reversed.png',recall_plot)
 ```
 
 ### Figure 5

@@ -37,6 +37,7 @@ Predicting patient-specific drug response is vital for advancing precision oncol
 │   ├── 3_gen_embedding.py           #   Generate C2S-Scale embeddings
 │   ├── 4_predict_sensitivity.py     #   Predict drug sensitivity (k-NN / GPR / LightGBM)
 │   ├── 5_validate_predictions.py     #   Validate with clinical indications
+├── examples/                       # Usage examples
 │   ├── 6_analysis.R                  #   Downstream data processing (saves workspace)
 │   └── 6_figures.qmd                 #   Downstream figures (Quarto notebook)
 ├── celligner2/                      # Celligner2 package (external dependency)
@@ -184,18 +185,18 @@ python scripts/5_validate_predictions.py \
 **Step 6a — Run data processing** (produces `results/analysis_workspace.RData`):
 
 ```bash
-Rscript scripts/6_analysis.R
+Rscript examples/6_analysis.R
 ```
 
-This script performs all computations across 14 analysis sections (model comparison, lineage enrichment, tumor purity, molecular subtypes, CBI scoring, survival analysis, drug combination analysis, machine learning classification, and more). All intermediate data is saved to a workspace file; no plots are generated.
+This script performs all computations across 14 analysis sections (model comparison, lineage enrichment, tumor purity, molecular subtypes, CBI scoring, survival analysis, drug combination analysis, machine learning classification, and more). All intermediate data is saved to a workspace file; no plots are generated. Edit the `file_list` paths at the top of the script to point to your validation result files.
 
 **Step 6b — Generate figures** (Quarto notebook):
 
 ```bash
-quarto render scripts/6_figures.qmd
+quarto render examples/6_figures.qmd
 ```
 
-Or open `scripts/6_figures.qmd` in RStudio and run interactively. The notebook loads `results/analysis_workspace.RData` and contains 28 publication-ready figure blocks covering all downstream visualizations.
+Or open `examples/6_figures.qmd` in RStudio and run interactively. The notebook loads `results/analysis_workspace.RData` and contains 28 publication-ready figure blocks covering all downstream visualizations.
 
 ---
 
