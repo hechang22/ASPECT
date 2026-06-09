@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Data files (large, not in git)
+data/
+results/
+out/
+runs/
+
+# Embeddings (large binary files)
+embeddings/
+*.npy
+
+# Model files (large, not in git)
+model/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+!examples/*.ipynb
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Validation outputs
+validation_results/
+validation_results_*/
+validation_per_drug_*/
+
+# Original scripts (reference only, not part of the released pipeline)
+original_scripts/
+
+# Figures
+figures/
+
+# Logs
+*.log
+
+# Environment
+.env

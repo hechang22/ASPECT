@@ -1,0 +1,485 @@
+---
+title: "ASPECT — Figures"
+format: html
+toc: true
+---
+
+```{r setup, include=FALSE}
+# Load all data from analysis script
+load("results/analysis_workspace.RData")
+
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(ggpubr)
+library(patchwork)
+library(viridis)
+library(pheatmap)
+library(survival)
+library(survminer)
+library(forestmodel)
+library(mlr3)
+library(mlr3learners)
+library(mlr3viz)
+library(ranger)
+
+knitr::opts_chunk$set(fig.width=10, fig.height=6, warning=FALSE, message=FALSE)
+```
+
+::: {.callout-important}
+**Prerequisite:** Run `scripts/6_analysis.R` first.
+:::
+
+### Auc Plot
+
+```{r}
+auc_plot <- ggplot(plot_data_sorted_auc, aes(x = drug_name, y = auc, fill = model_name)) +
+  geom_col(position = position_dodge(width = 0.9)) +
+  labs(
+    title = "Comparison of Drug Predictive AUC across Models",
+    subtitle = "Grouped by Drug",
+    x = "Drug Name",
+    y = "AUC",
+    fill = "Model"  # This is the legend title
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate when x-axis labels are too long
+```
+
+### Figure 2
+
+```{r}
+print(auc_plot)
+ggsave('./figures/auc_plot_reversed.png',auc_plot)
+```
+
+### Recall Plot
+
+```{r}
+recall_plot <- ggplot(plot_data_sorted_recall, aes(x = drug_name, y =recall_top_n, fill = model_name)) +
+  geom_col(position = position_dodge(width = 0.9)) +
+  labs(
+    title = "Comparison of Drug Recall @ Top-N across Models",
+    subtitle = "Grouped by Drug",
+    x = "Drug Name",
+    y = "Recall @ Top-N",
+    fill = "Model" # Legend title
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Figure 4
+
+```{r}
+print(recall_plot)
+ggsave('./figures/recall_plot_reversed.png',recall_plot)
+```
+
+### Figure 5
+
+```{r}
+ggplot(plot_data, aes(x = Group, y = Prop, fill =Status)) +
+  geom_col(position = "fill") +
+  labs(title = "Proportion of Metastatic Samples", y = "Proportion") +
+  theme_minimal()
+```
+
+### Figure 6
+
+```{r}
+ggplot(viz_data, aes(x = CancerType, y = OncotreeLineage)) +
+  # Draw bubbles
+```
+
+### Figure 7
+
+```{r}
+ggplot(plot_data, aes(x = Purity_Group, y = Predicted_IC50, fill = Purity_Group)) +
+  geom_boxplot(outlier.alpha = 0.3) +
+  # Add P-value comparison (Low vs High)
+  stat_compare_means(comparisons = list(c("Low", "High")),
+```
+
+### Figure 8
+
+```{r}
+ggplot(plot_data_subset, aes(x = TumorPurity, y = Predicted_IC50)) +
+  # 1. Scatter points
+```
+
+### Figure 9
+
+```{r}
+ggplot(brca_data, aes(x = Subtype, y = Predicted_IC50, fill = Subtype)) +
+  # 1. Boxplot + jitter
+```
+
+### Figure 10
+
+```{r}
+ggplot(ov_data, aes(x = Subtype, y = Predicted_IC50, fill = Subtype)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+  geom_jitter(width = 0.2, alpha = 0.2, size = 1) +
+```
+
+### Figure 11
+
+```{r}
+ggplot(skcm_data, aes(x = Subtype_Label, y = Predicted_IC50, fill = Subtype_Label)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.7) +
+  geom_jitter(width = 0.2, alpha = 0.2) +
+  scale_fill_brewer(palette = "YlOrRd") + # Gradient color
+```
+
+### Figure 12
+
+```{r}
+ggplot(prad_data, aes(x = Group, y = Predicted_IC50, fill = Group)) +
+  geom_boxplot(alpha = 0.7) +
+  stat_compare_means(method = "wilcox.test") +
+  labs(
+    title = "Validation in Prostate Cancer (PRAD)",
+    subtitle = "ERG Fusion status check",
+    x = "Subtype Group",
+    y = "Predicted Score (IC50)"
+  ) +
+  theme_bw()
+```
+
+### P
+
+```{r}
+p <- ggplot(plot_data, aes(x = Subtype, y = CBI, fill = Subtype)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.8) +
+    geom_jitter(width = 0.2, alpha = 0.1, size = 0.8) +
+```
+
+### Figure 14
+
+```{r}
+print(p1)
+```
+
+### Figure 15
+
+```{r}
+print(p2)
+```
+
+### Figure 16
+
+```{r}
+print(p3)
+```
+
+### Figure 17
+
+```{r}
+print(p4)
+```
+
+### Figure 18
+
+```{r}
+(p1 | p2) / (p3 | p4)
+```
+
+### P Immune
+
+```{r}
+p_immune <- ggplot(brca_est_merged, aes(x = Subtype, y = ImmuneScore, fill = Subtype)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.8) +
+  geom_jitter(width = 0.2, alpha = 0.1, size = 0.5) +
+```
+
+### P Purity
+
+```{r}
+p_purity <- ggplot(brca_est_merged, aes(x = Subtype, y = TumorPurity, fill = Subtype)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.8) +
+  geom_jitter(width = 0.2, alpha = 0.1, size = 0.5) +
+  stat_compare_means(comparisons = list(c("Other", "Basal")),
+```
+
+### Figure 21
+
+```{r}
+print(combined_plot)
+```
+
+### Figure 22
+
+```{r}
+ggplot(plot_ccle_ic50_dist, aes(x = Status, y = IC50, fill = Status)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.8) +
+  geom_jitter(width = 0.2, alpha = 0.1, size = 0.5) +
+  stat_compare_means(comparisons = list(c('Metastatic', 'Primary')),label = "p.signif", size=5) +
+```
+
+### Figure 23
+
+```{r}
+autoplot(bmr, measure = msr("classif.acc")) +
+```
+
+### Figure 24
+
+```{r}
+ggplot(cm_df, aes(x = True_Class, y = Predicted_Class, fill = Freq)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = Freq), color = "black", size = 5) +
+  scale_fill_gradient(low = "#F0F0F0", high = "#DC143C") +
+  labs(
+    title = "Confusion Matrix: Comb Model",
+    x = "Actual Clinical Subtype",
+    y = "Predicted Subtype"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 10),
+    plot.title = element_text(face = "bold")
+  )
+```
+
+### Figure 25
+
+```{r}
+ggplot(top_features, aes(x = reorder(Feature, Importance), y = Importance)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Top predictive features",
+    x = "Drug Name",
+    y = "Importance (Gini Impurity)"
+  ) +
+  theme_classic()
+```
+
+### Figure 26
+
+```{r}
+print(p_lgg)
+```
+
+### Figure 27
+
+```{r}
+print(p_brca)
+```
+
+### Figure 28
+
+```{r}
+print(p_skcm)
+```
+
+### Figure 29
+
+```{r}
+print(forest_lgg)
+```
+
+### Figure 30
+
+```{r}
+print(forest_brca)
+```
+
+### P Boxplot
+
+```{r}
+p_boxplot <- ggplot(lgg_master_data, aes(x = Subtype_DNAmeth, y = CBI, fill = Subtype_DNAmeth)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.8, width = 0.6) +
+  geom_jitter(width = 0.2, alpha = 0.3, size = 1) +
+```
+
+### Figure 32
+
+```{r}
+print(p_boxplot)
+```
+
+### P Corr
+
+```{r}
+p_corr <- ggplot(lgg_master_data, aes(x = TOP2A, y = CBI)) +
+  # Color by subtype to visualize distribution clusters
+```
+
+### Figure 34
+
+```{r}
+print(p_corr)
+```
+
+### P Corr Faceted
+
+```{r}
+p_corr_faceted <- ggplot(lgg_master_data, aes(x = TOP2A, y = CBI)) +
+  # 1. Scatter points: colored by subtype for clarity
+```
+
+### Figure 36
+
+```{r}
+print(p_corr_faceted)
+```
+
+### P
+
+```{r}
+p <- ggplot(plot_dat, aes(x = .data[[info$Drug1]], y = .data[[info$Drug2]])) +
+      geom_point(alpha = 0.4, color = "#2E8B57", size = 1.5) +
+      geom_smooth(method = "lm", color = "black", linetype = "dashed", se = TRUE) +
+```
+
+### Figure 38
+
+```{r}
+print(final_panel_a)
+```
+
+### Panel B
+
+```{r}
+panel_b <- ggplot(waterfall_data, aes(x = SampleID, y = Z_Score, fill = DrugName)) +
+  geom_col(position = "stack", width = 1) + # Stacked bar chart
+```
+
+### Figure 40
+
+```{r}
+print(panel_b)
+```
+
+### Figure 41
+
+```{r}
+pheatmap(
+  scale = "column",
+  spec_mat,
+  color = colorRampPalette(c("navy", "white", "firebrick"))(100),
+  cluster_rows = TRUE,
+  cluster_cols = TRUE,
+  main = "Panel C: Regimen Specificity (Mean Predicted Sensitivity)",
+  fontsize_row = 8,
+  fontsize_col = 9,
+  angle_col = 45
+)
+```
+
+### P Refined
+
+```{r}
+p_refined <- ggplot(overlap_df_refined, aes(x = Drug1, y = Drug2)) +
+  # 1. Grid background
+```
+
+### Figure 43
+
+```{r}
+print(p_refined)
+```
+
+### Figure 44
+
+```{r}
+ggplot(plot_data_novel, aes(x = Log2OR, y = -log10(P_Value))) +
+  # 1. Background points (NS and Known)
+  geom_point(data = subset(plot_data_novel, !grepl("Novel", Category)),
+```
+
+### P
+
+```{r}
+p <- ggplot(data, aes(x = CellType, y = CBI, fill = CellType)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.8) +
+    geom_jitter(width = 0.2, alpha = 0.4, size = 1.5) +
+    stat_compare_means(label.y = max(data$CBI) * 1.1) +
+    scale_fill_viridis_d(option = "turbo") +
+    labs(
+      title = paste0("Mechanism Validation: ", title_suffix),
+      x = "Cell Type", y = "Score"
+    ) +
+    theme_classic() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+      legend.position = "none"
+    )
+```
+
+### P
+
+```{r}
+p <- ggplot(plot_data, aes(x = Group, y = CBI, fill = Group)) +
+    geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+    geom_point(aes(group = Patient), size = 2, alpha = 0.6) +
+    #geom_line(aes(group = Patient), color = "grey50", alpha = 0.5) +
+    facet_wrap(~CellType, scales = "free_y") +
+    #stat_compare_means(method = "t.test", paired = TRUE, label = "p.format", label.x.npc = "center") +
+    scale_fill_manual(values = c("Pre-treatment" = "#DC143C", "Post-treatment" = "#4682B4")) +
+    labs(title = paste0("Pre vs Post: ", title_suffix), y = "Score") +
+    theme_bw() + theme(legend.position = "none", axis.title.x = element_blank())
+```
+
+### P
+
+```{r}
+p <- ggplot(plot_data, aes(x = Outcome, y = CBI, fill = Outcome)) +
+    geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+    geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
+    facet_wrap(~CellType, scales = "free_y") +
+    #stat_compare_means(method = "t.test", label = "p.signif", label.x.npc = "center") +
+    scale_fill_manual(values = c("Sensitive" = "#2E8B57", "Resistant" = "#B22222")) +
+    labs(title = paste0("Baseline Prediction: ", title_suffix), y = "Pre-treatment Score") +
+    theme_bw() + theme(legend.position = "none", axis.title.x = element_blank())
+```
+
+### Figure 48
+
+```{r}
+print(p2_tissue)
+```
+
+### Figure 49
+
+```{r}
+print(p1_blood)
+print(p2_blood)
+print(p3_blood)
+```
+
+### Figure 50
+
+```{r}
+ggplot(plot_data_box, aes(x = CBI_Group, y = M2_Score, fill = CBI_Group)) +
+```
+
+### P D New
+
+```{r}
+p_d_new <- ggplot(clean_data, aes(x = CBI, y = Expr)) +
+    geom_point(aes(color = Status), size = 3, alpha = 0.7) +
+    geom_smooth(method = "lm", color = "black", linetype = "dashed") +
+    stat_cor(method = "spearman", label.x.npc = "left") +
+    scale_color_manual(values = c("Pre" = "#DC143C", "Post" = "#4682B4", "Prog" = "black")) +
+    labs(
+      x = "TAMs Response Score",
+      y = paste0(target_gene, " Expression (Z-Score)")
+    ) +
+    theme_classic()
+```
+
+### Figure 52
+
+```{r}
+plot_layout(guides = "collect") + # <--- Collect all legends into one place
+```
+
+### Figure 53
+
+```{r}
+print(combined_plot)
+```
+
